@@ -121,6 +121,9 @@ async function main() {
 	placeIcon(info, vt.wars10m, "10m");
 	placeIcon(info, vt.wars3m, "3m");
 	placeIcon(info, vt.wars10s, "10s");
+	
+	console.log("10秒の段級位:", vt.wars10s);
+
   }
 }
 
