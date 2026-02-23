@@ -52,9 +52,11 @@ async function fetchYouTubeIcon(channelId) {
   return {
     title: snippet.title,
     icon: snippet.thumbnails.high.url,
-    url: `https://www.youtube.com/channel/${channelId}`
+    url: `https://www.youtube.com/channel/${channelId}`,
+    channelId: channelId   // ← ★これが必須！
   };
 }
+
 
 // ===============================
 //  段級位の行にアイコンを置く
@@ -65,8 +67,8 @@ function placeIcon(info, rankCode) {
   const row = document.querySelector(`.tier-row[data-rank="${rankCode}"] .icons`);
   if (!row) return;
 
-  // ▼ 重複防止：同じチャンネルのアイコンが既にあるなら追加しない
-  const exists = row.querySelector(`img[data-channel="${info.url}"]`);
+  // ▼ 重複防止：同じチャンネルIDのアイコンがすでにあるか確認
+  const exists = row.querySelector(`img[data-channel-id="${info.channelId}"]`);
   if (exists) return;
 
   const a = document.createElement("a");
@@ -77,8 +79,8 @@ function placeIcon(info, rankCode) {
   img.src = info.icon;
   img.alt = info.title;
 
-  // ▼ チャンネルURLを識別子として持たせる
-  img.dataset.channel = info.url;
+  // ▼ チャンネルIDを埋め込む（重複判定用）
+  img.dataset.channelId = info.channelId;
 
   a.appendChild(img);
   row.appendChild(a);
