@@ -61,13 +61,18 @@ async function fetchYouTubeIcon(channelId) {
 // ===============================
 //  段級位の行にアイコンを置く
 // ===============================
-function placeIcon(info, rankCode) {
+function placeIcon(info, rankCode, mode) {
   if (!rankCode) return;
 
-  const row = document.querySelector(`.tier-row[data-rank="${rankCode}"] .icons`);
+  // ▼ 正しい表（10m / 3m / 10s）を選ぶ
+  const table = document.querySelector(`.tier-table[data-mode="${mode}"]`);
+  if (!table) return;
+
+  // ▼ その表の中から正しい段級位を探す
+  const row = table.querySelector(`.tier-row[data-rank="${rankCode}"] .icons`);
   if (!row) return;
 
-  // ▼ 重複防止：同じチャンネルIDのアイコンがすでにあるか確認
+  // ▼ 重複防止
   const exists = row.querySelector(`img[data-channel-id="${info.channelId}"]`);
   if (exists) return;
 
@@ -78,13 +83,12 @@ function placeIcon(info, rankCode) {
   const img = document.createElement("img");
   img.src = info.icon;
   img.alt = info.title;
-
-  // ▼ チャンネルIDを埋め込む（重複判定用）
   img.dataset.channelId = info.channelId;
 
   a.appendChild(img);
   row.appendChild(a);
 }
+
 
 // ===============================
 //  メイン処理：CSV → アイコン配置
@@ -102,9 +106,9 @@ async function main() {
     if (!info) continue;
 
     // ③ 段級位ごとに配置
-    placeIcon(info, vt.wars10m);
-    placeIcon(info, vt.wars3m);
-    placeIcon(info, vt.wars10s);
+	placeIcon(info, vt.wars10m, "10m");
+	placeIcon(info, vt.wars3m, "3m");
+	placeIcon(info, vt.wars10s, "10s");
   }
 }
 
