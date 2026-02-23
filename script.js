@@ -1,3 +1,18 @@
+async function loadCSV() {
+  const res = await fetch("vtubers.csv");
+  const text = await res.text();
+
+  const lines = text.trim().split("\n");
+  const headers = lines[0].split(",");
+
+  return lines.slice(1).map(line => {
+    const cols = line.split(",");
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = cols[i]);
+    return obj;
+  });
+}
+
 // ===============================
 //  YouTube APIキーを入れる
 // ===============================
@@ -77,19 +92,19 @@ document.querySelectorAll(".tabs button").forEach(btn => {
 // ===============================
 // ▼ vtubers.js を読み込んでいる前提
 
-async function placeAllVtubers() {
-  for (const vt of VTUBERS) {
-    const info = await fetchYouTubeIcon(vt.channelId);
-    if (!info) continue;
+//async function placeAllVtubers() {
+//  for (const vt of VTUBERS) {
+//    const info = await fetchYouTubeIcon(vt.channelId);
+//    if (!info) continue;
 
     // 10分
-    placeIcon(info, vt.wars["10m"]);
+//    placeIcon(info, vt.wars["10m"]);
     // 3分
-    placeIcon(info, vt.wars["3m"]);
+//    placeIcon(info, vt.wars["3m"]);
     // 10秒
-    placeIcon(info, vt.wars["10s"]);
-  }
-}
+//    placeIcon(info, vt.wars["10s"]);
+//  }
+//}
 
 function placeIcon(info, rankCode) {
   if (!rankCode) return;
@@ -228,14 +243,37 @@ function placeIcon(info, rankCode, mode) {
 }
 
 
+async function main() {
+  const vtubers = await loadCSV();
+
+  for (const vt of vtubers) {
+    // ① ハンドル → チャンネルID
+    const channelId = await handleToChannelId(vt.handle);
+    if (!channelId) continue;
+
+    // ② アイコン取得
+    const info = await fetchYouTubeIcon(channelId);
+    if (!info) continue;
+
+    // ③ 段級位ごとに配置
+    placeIcon(info, vt.wars10m);
+    placeIcon(info, vt.wars3m);
+    placeIcon(info, vt.wars10s);
+  }
+}
+
+main();
+
+
+
 // ===============================
 //  ▼ テスト用：ここにVtuberを追加
 // ===============================
 
- addVtuberToRank("UCR05GknrVn_c5VO5kA24t5g", "7d");
- addVtuberToRank("UCEMHQxtepl_onOALX8ALzMg", "7d");
- addVtuberByWarsId("UCEMHQxtepl_onOALX8ALzMg", "xiaosen0439");
- fetchWarsRank("xiaosen0439");
+//addVtuberToRank("UCR05GknrVn_c5VO5kA24t5g", "7d");
+//addVtuberToRank("UCEMHQxtepl_onOALX8ALzMg", "7d");
+//addVtuberByWarsId("UCEMHQxtepl_onOALX8ALzMg", "xiaosen0439");
+//fetchWarsRank("xiaosen0439");
 
  console.log("コンソールテスト：表示されていればOK");
 
