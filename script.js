@@ -64,7 +64,11 @@ async function fetchYouTubeIcon(channelId) {
 function placeIcon(info, rankCode, mode) {
   if (!rankCode) return;
   
-  rankCode = rankCode.replace(/\r/g, "").trim();
+  rankCode = rankCode
+  .replace(/[\r\n\t]/g, "")  // 改行・タブ除去
+  .replace(/\uFEFF/g, "")    // BOM除去
+  .trim();                   // 前後の空白除去
+
 
   // ▼ 正しい表（10m / 3m / 10s）を選ぶ
   const table = document.querySelector(`.tier-table[data-mode="${mode}"]`);
