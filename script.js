@@ -8,7 +8,10 @@ const API_KEY = "AIzaSyC3__dfDFez4-k5zhhe-RBgbF-o3CwQLec";
 // ===============================
 async function loadCSV() {
   const res = await fetch("vtubers.csv");
-  const text = await res.text();
+  let text = await res.text();
+
+  // ▼ CSV 全体から BOM を除去
+  text = text.replace(/\uFEFF/g, "");
 
   const lines = text.trim().split("\n");
   const headers = lines[0].split(",");
@@ -16,10 +19,13 @@ async function loadCSV() {
   return lines.slice(1).map(line => {
     const cols = line.split(",");
     const obj = {};
-    headers.forEach((h, i) => obj[h] = cols[i]);
+    headers.forEach((h, i) => {
+      obj[h] = cols[i] ? cols[i].replace(/[\r\n\t]/g, "").trim() : "";
+    });
     return obj;
   });
 }
+
 
 // ===============================
 //  ハンドル → チャンネルID 変換
