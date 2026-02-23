@@ -14,7 +14,12 @@ async function loadCSV() {
   text = text.replace(/\uFEFF/g, "");
 
   const lines = text.trim().split("\n");
-  const headers = lines[0].split(",");
+  const headers = lines[0]
+  .replace(/\uFEFF/g, "")
+  .replace(/[\r\n\t]/g, "")
+  .split(",")
+  .map(h => h.trim());
+
 
   return lines.slice(1).map(line => {
     const cols = line.split(",");
