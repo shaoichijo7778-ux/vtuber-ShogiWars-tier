@@ -114,7 +114,7 @@ document.querySelectorAll(".tab").forEach(tab => {
 
     // 表示切り替え
     document.querySelectorAll(".tier-table").forEach(table => {
-      table.style.display = table.dataset.mode === mode ? "block" : "none";
+      table.style.display = (table.dataset.mode === mode) ? "block" : "none";
     });
   });
 });
