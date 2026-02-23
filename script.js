@@ -100,3 +100,21 @@ async function main() {
 }
 
 main();
+
+// ===============================
+// タブ切り替え
+// ===============================
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    const mode = tab.dataset.mode; // "10m" / "3m" / "10s"
+
+    // タブの見た目を更新
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+
+    // 表示切り替え
+    document.querySelectorAll(".tier-table").forEach(table => {
+      table.style.display = table.dataset.mode === mode ? "block" : "none";
+    });
+  });
+});

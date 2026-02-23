@@ -9,11 +9,23 @@
 <body>
   <h1>Vtuber 将棋ウォーズ 段級位表</h1>
 
-  <div class="tabs">
-    <button data-mode="10m">10分</button>
-    <button data-mode="3m">3分</button>
-    <button data-mode="10s">10秒</button>
-  </div>
+<div class="tabs">
+  <div class="tab active" data-mode="10m">10分</div>
+  <div class="tab" data-mode="3m">3分</div>
+  <div class="tab" data-mode="10s">10秒</div>
+</div>
+
+<div class="tier-table" data-mode="10m" style="display:block;">
+  …10分の段級位表…
+</div>
+
+<div class="tier-table" data-mode="3m" style="display:none;">
+  …3分の段級位表…
+</div>
+
+<div class="tier-table" data-mode="10s" style="display:none;">
+  …10秒の段級位表…
+</div>
 
   <div id="tier-table">
     <div class="tier-row" data-rank="7d"><span>七段</span><div class="icons"></div></div>
