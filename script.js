@@ -24,6 +24,9 @@ async function loadCSV() {
     });
     return obj;
   });
+  
+  console.log("cols:", cols);
+
 }
 
 
