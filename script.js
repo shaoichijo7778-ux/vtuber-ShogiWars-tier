@@ -1,7 +1,7 @@
 // ===============================
 //  YouTube APIキーを入れる
 // ===============================
-const API_KEY = "YOUR_YOUTUBE_API_KEY";
+const API_KEY = "AIzaSyC3__dfDFez4-k5zhhe-RBgbF-o3CwQLec";
 
 // ===============================
 //  CSV を読み込む
