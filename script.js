@@ -176,6 +176,8 @@ function placeIcon(info, rankCode, mode) {
  addVtuberByWarsId("UCEMHQxtepl_onOALX8ALzMg", "xiaosen0439");
  fetchWarsRank("xiaosen0439");
 
+ console.log("コンソールテスト：表示されていればOK");
+
 
 // addVtuberToRank("UCzzzzzzz", "1k");
 
