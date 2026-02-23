@@ -75,25 +75,86 @@ document.querySelectorAll(".tabs button").forEach(btn => {
 // ===============================
 //  将棋ウォーズAPIから段級位を取得
 // ===============================
-async function fetchWarsRank(warsId) {
-  const url = `https://api.shogiwars.heroz.jp/users/${warsId}/stats`;
+// ▼ vtubers.js を読み込んでいる前提
 
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
+async function placeAllVtubers() {
+  for (const vt of VTUBERS) {
+    const info = await fetchYouTubeIcon(vt.channelId);
+    if (!info) continue;
 
-    return {
-      "10m": data["10m"]?.rate ?? null,
-      "3m": data["3m"]?.rate ?? null,
-      "10s": data["10s"]?.rate ?? null
-    };
-
-  } catch (e) {
-    console.error("将棋ウォーズAPIエラー:", e);
-    return null;
+    // 10分
+    placeIcon(info, vt.wars["10m"]);
+    // 3分
+    placeIcon(info, vt.wars["3m"]);
+    // 10秒
+    placeIcon(info, vt.wars["10s"]);
   }
 }
 
+function placeIcon(info, rankCode) {
+  if (!rankCode) return;
+
+  const row = document.querySelector(`.tier-row[data-rank="${rankCode}"] .icons`);
+  if (!row) return;
+
+  const a = document.createElement("a");
+  a.href = info.url;
+  a.target = "_blank";
+
+  const img = document.createElement("img");
+  img.src = info.icon;
+  img.alt = info.title;
+
+  a.appendChild(img);
+  row.appendChild(a);
+}
+
+// ページ読み込み時に実行
+placeAllVtubers();
+
+async function loadVtubersFromCSV() {
+  const res = await fetch("vtubers.csv");
+  const text = await res.text();
+
+  const lines = text.trim().split("\n");
+  const headers = lines[0].split(",");
+
+  const vtubers = lines.slice(1).map(line => {
+    const cols = line.split(",");
+    const obj = {};
+
+    headers.forEach((h, i) => {
+      obj[h] = cols[i];
+    });
+
+    return {
+      name: obj.name,
+      channelId: obj.channelId,
+      wars: {
+        "10m": obj.wars10m,
+        "3m": obj.wars3m,
+        "10s": obj.wars10s
+      }
+    };
+  });
+
+  return vtubers;
+}
+
+async function placeAllVtubers() {
+  const vtubers = await loadVtubersFromCSV();
+
+  for (const vt of vtubers) {
+    const info = await fetchYouTubeIcon(vt.channelId);
+    if (!info) continue;
+
+    placeIcon(info, vt.wars["10m"]);
+    placeIcon(info, vt.wars["3m"]);
+    placeIcon(info, vt.wars["10s"]);
+  }
+}
+
+placeAllVtubers();
 
 // ===============================
 //  段級位 → rankコード変換
