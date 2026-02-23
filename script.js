@@ -65,6 +65,10 @@ function placeIcon(info, rankCode) {
   const row = document.querySelector(`.tier-row[data-rank="${rankCode}"] .icons`);
   if (!row) return;
 
+  // ▼ 重複防止：同じチャンネルのアイコンが既にあるなら追加しない
+  const exists = row.querySelector(`img[data-channel="${info.url}"]`);
+  if (exists) return;
+
   const a = document.createElement("a");
   a.href = info.url;
   a.target = "_blank";
@@ -72,6 +76,9 @@ function placeIcon(info, rankCode) {
   const img = document.createElement("img");
   img.src = info.icon;
   img.alt = info.title;
+
+  // ▼ チャンネルURLを識別子として持たせる
+  img.dataset.channel = info.url;
 
   a.appendChild(img);
   row.appendChild(a);
