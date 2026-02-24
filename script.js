@@ -194,6 +194,7 @@ document.getElementById("export-all").addEventListener("click", () => {
 
 document.querySelectorAll(".export-row").forEach(btn => {
   btn.addEventListener("click", () => {
+  	const activeMode = document.querySelector(".tab.active").dataset.mode;
     const row = btn.closest(".tier-row");
     const rank = row.dataset.rank;
     const icons = row.querySelectorAll("a");
@@ -210,7 +211,7 @@ document.querySelectorAll(".export-row").forEach(btn => {
       });
     });
 
-    exportCSV(data, `vtubers_${mode}_${rank}.csv`);
+    exportCSV(data, `vtubers_${activeMode}_${rank}.csv`);
   });
 });
 
