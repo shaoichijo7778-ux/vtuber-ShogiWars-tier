@@ -210,7 +210,7 @@ document.querySelectorAll(".export-row").forEach(btn => {
       });
     });
 
-    exportCSV(data, `vtubers_${rank}.csv`);
+    exportCSV(data, `vtubers_${mode}_${rank}.csv`);
   });
 });
 
