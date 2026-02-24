@@ -74,7 +74,7 @@ async function handleToChannelId(handle) {
 // ===============================
 //  チャンネルID → アイコン取得
 // ===============================
-async function fetchYouTubeIcon(channelId) {
+/*async function fetchYouTubeIcon(channelId) {
   const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${API_KEY}`;
   const res = await fetch(url);
   const data = await res.json();
@@ -86,6 +86,15 @@ async function fetchYouTubeIcon(channelId) {
   return {
     title: snippet.title,
     icon: snippet.thumbnails.high.url,
+    url: `https://www.youtube.com/channel/${channelId}`,
+    channelId: channelId
+  };
+}*/
+
+async function fetchYouTubeIcon(channelId) {
+  return {
+    title: "テストチャンネル",
+    icon: "https://yt3.googleusercontent.com/ytc/AGIKgqO5p7x.png", // 適当なアイコンURL
     url: `https://www.youtube.com/channel/${channelId}`,
     channelId: channelId
   };
