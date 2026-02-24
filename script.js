@@ -158,3 +158,73 @@ document.querySelectorAll(".tab").forEach(tab => {
     });
   });
 });
+
+
+document.getElementById("export-all").addEventListener("click", () => {
+  const activeMode = document.querySelector(".tab.active").dataset.mode;
+  const table = document.querySelector(`.tier-table[data-mode="${activeMode}"]`);
+
+  const rows = table.querySelectorAll(".tier-row");
+
+  const data = [];
+
+  rows.forEach(row => {
+    const rank = row.dataset.rank;
+    const icons = row.querySelectorAll("a");
+
+    icons.forEach(a => {
+      const info = JSON.parse(a.dataset.tooltip); // placeIcon で入れた JSON
+      data.push({
+        name: info.name,
+        rank: info.rank,
+        icon: info.icon,
+        url: a.href
+      });
+    });
+  });
+
+  exportCSV(data, `vtubers_${activeMode}.csv`);
+});
+
+document.querySelectorAll(".export-row").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const row = btn.closest(".tier-row");
+    const rank = row.dataset.rank;
+    const icons = row.querySelectorAll("a");
+
+    const data = [];
+
+    icons.forEach(a => {
+      const info = JSON.parse(a.dataset.tooltip);
+      data.push({
+        name: info.name,
+        rank: info.rank,
+        icon: info.icon,
+        url: a.href
+      });
+    });
+
+    exportCSV(data, `vtubers_${rank}.csv`);
+  });
+});
+
+function exportCSV(data, filename) {
+  if (data.length === 0) {
+    alert("データがありません");
+    return;
+  }
+
+  const header = Object.keys(data[0]).join(",");
+  const rows = data.map(obj => Object.values(obj).join(","));
+  const csv = [header, ...rows].join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
