@@ -39,17 +39,39 @@ async function loadCSV() {
 //  ハンドル → チャンネルID 変換
 // ===============================
 async function handleToChannelId(handle) {
-  const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${handle}&key=${API_KEY}`;
-  const res = await fetch(url);
-  const data = await res.json();
-
-  if (!data.items || data.items.length === 0) {
-    console.warn("チャンネルが見つかりません:", handle);
-    return null;
+  // 先頭に @ がなければ付ける
+  if (!handle.startsWith("@")) {
+    handle = "@" + handle;
   }
 
-  return data.items[0].id;
+  // ① まず forHandle で高速取得（通常はこれでOK）
+  {
+    const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${handle}&key=${API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.items && data.items.length > 0) {
+      return data.items[0].id;
+    }
+  }
+
+  console.warn("forHandle で取得できず fallback:", handle);
+
+  // ② fallback：検索 API を使う（特殊ケース対応）
+  {
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${handle}&key=${API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.items && data.items.length > 0) {
+      return data.items[0].snippet.channelId;
+    }
+  }
+
+  console.warn("チャンネルが見つかりません:", handle);
+  return null;
 }
+
 
 // ===============================
 //  チャンネルID → アイコン取得
