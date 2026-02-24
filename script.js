@@ -185,7 +185,7 @@ document.getElementById("export-all").addEventListener("click", () => {
       data.push({
         name: info.name,
         rank: info.rank,
-        icon: info.icon,
+        //icon: info.icon,
         url: a.href
       });
     });
@@ -208,7 +208,7 @@ document.querySelectorAll(".export-row").forEach(btn => {
       data.push({
         name: info.name,
         rank: info.rank,
-        icon: info.icon,
+        //icon: info.icon,
         url: a.href
       });
     });
