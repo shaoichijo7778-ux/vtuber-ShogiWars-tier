@@ -100,7 +100,13 @@ function placeIcon(info, rankCode, mode) {
   a.target = "_blank";
 
   // ▼ ツールチップは a に付ける（これが重要）
-  a.dataset.tooltip = info.title;
+  a.dataset.tooltip = JSON.stringify({
+  name: info.title,
+  rank: rankCode,
+  icon: info.icon,
+  url: info.url
+});
+
 
   const img = document.createElement("img");
   img.src = info.icon;
