@@ -157,26 +157,25 @@ row.appendChild(a);
 async function main() {
   const vtubers = await loadCSV();
 
-for (const vt of vtubers) {
-  console.log("vt:", vt);
+	for (const vt of vtubers) {
+	  console.log("vt:", vt);
 
-  // ① ハンドル → チャンネルID
-  const channelId = await handleToChannelId(vt.handle, vt.name);
-  if (!channelId) continue;
+	  // ① ハンドル → チャンネルID
+	  const channelId = await handleToChannelId(vt.handle, vt.name);
+	  if (!channelId) continue;
 
-  // ② アイコン取得
-  const info = await fetchYouTubeIcon(channelId);
-  if (!info) continue;
+	  // ② アイコン取得
+	  const info = await fetchYouTubeIcon(channelId);
+	  if (!info) continue;
 
-  // ③ 段級位ごとに配置
-  placeIcon(info, vt.wars10m, "10m");
-  placeIcon(info, vt.wars3m, "3m");
-  placeIcon(info, vt.wars10s, "10s");
-}
+	  // ③ 段級位ごとに配置
+	  placeIcon(info, vt.wars10m, "10m");
+	  placeIcon(info, vt.wars3m, "3m");
+	  placeIcon(info, vt.wars10s, "10s");
+	}
 
 
   }
-}
 
 main();
 
