@@ -1,6 +1,22 @@
 /* ============================
    全体レイアウト
 ============================ */
+h1 {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 5px;
+  color: #333;
+  letter-spacing: 1px;
+}
+
+.updated {
+  font-size: 14px;
+  color: #777;
+  margin-left: 10px;
+  font-weight: normal;
+}
+
+
 .tier-table {
   display: none;
 }
@@ -106,26 +122,24 @@
 /* ============================
    タブ（10分 / 3分 / 10秒）
 ============================ */
-.tabs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
 .tab {
-  padding: 8px 16px;
-  background: #e0e0e0;
-  border-radius: 6px;
+  padding: 10px 20px;
+  background: #f0f0f0;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
   transition: 0.2s;
+  border: 1px solid #ddd;
 }
 
 .tab:hover {
-  background: #d0d0d0;
+  background: #e8e8e8;
 }
 
 .tab.active {
   background: #4a90e2;
   color: #fff;
+  border-color: #4a90e2;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
 }
+
