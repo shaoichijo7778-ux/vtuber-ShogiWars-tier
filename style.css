@@ -1,96 +1,121 @@
-body {
-  font-family: system-ui, sans-serif;
-  background: #f5f5f5;
-  padding: 20px;
+/* ============================
+   全体レイアウト
+============================ */
+.tier-table {
+  margin-top: 20px;
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.tabs {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.tabs button {
-  padding: 6px 16px;
-  border-radius: 999px;
-  border: 1px solid #ccc;
-  background: #fff;
-  cursor: pointer;
-}
-
-#tier-table {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
+/* 1段ごとの行 */
 .tier-row {
   display: flex;
   align-items: center;
-  padding: 6px 10px;
-  margin: 4px 0;
+  margin: 6px 0;
   border-radius: 6px;
+  overflow: hidden;
 }
 
+/* 左端の段級位ラベル（ここだけ色を付ける） */
 .tier-row .label {
-  width: 80px;
+  width: 90px;
+  padding: 8px 12px;
   font-weight: bold;
   color: #fff;
+  text-align: center;
+  flex-shrink: 0;
 }
 
+/* 右側（アイコン部分）は無地背景 */
+.tier-row .icons {
+  flex: 1;
+  padding: 6px 10px;
+  background: #f7f7f7;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-radius: 0 6px 6px 0;
+}
+
+/* アイコン画像 */
 .tier-row .icons img {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  margin-right: 6px;
+  cursor: pointer;
 }
 
-/* 段級位ごとの色帯 */
-.rank-7d { background: #ff4d4d; }
-.rank-6d { background: #ff6a3d; }
-.rank-5d { background: #ff8c3d; }
-.rank-4d { background: #ffb84d; }
-.rank-3d { background: #ffe066; }
-.rank-2d { background: #a8e063; }
-.rank-1d { background: #c2f970; }
+/* ============================
+   段級位の色帯
+============================ */
+.rank-7d .label { background: #ff4d4d; }
+.rank-6d .label { background: #ff6a3d; }
+.rank-5d .label { background: #ff8c3d; }
+.rank-4d .label { background: #ffb84d; }
+.rank-3d .label { background: #ffe066; color: #333; }
+.rank-2d .label { background: #a8e063; color: #333; }
+.rank-1d .label { background: #c2f970; color: #333; }
 
-.rank-1k { background: #b2f7ef; }
-.rank-2k { background: #7ed6df; }
-.rank-3k { background: #74b9ff; }
-.rank-4k { background: #81ecec; }
-.rank-5k { background: #fab1a0; }
-.rank-6k { background: #ffcccc; }
-.rank-7k { background: #dcd6f7; }
-.rank-8k { background: #a29bfe; }
-.rank-9k { background: #6c5ce7; }
+.rank-1k .label { background: #b2f7ef; color: #333; }
+.rank-2k .label { background: #7ed6df; }
+.rank-3k .label { background: #74b9ff; }
+.rank-4k .label { background: #81ecec; color: #333; }
+.rank-5k .label { background: #fab1a0; }
+.rank-6k .label { background: #ffcccc; }
+.rank-7k .label { background: #dcd6f7; color: #333; }
+.rank-8k .label { background: #a29bfe; }
+.rank-9k .label { background: #6c5ce7; }
 
-
-.tier-row span {
-  font-weight: bold;
-}
-
-.icons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.icons a {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 1px solid #ddd;
-  background: #eee;
-}
-
+/* ============================
+   ツールチップ（アイコンに名前表示）
+============================ */
 .icons img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  position: relative;
+}
+
+.icons img:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  font-size: 13px;
+  pointer-events: none;
+  opacity: 1;
+  z-index: 10;
+}
+
+.icons img::after {
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+}
+
+/* ============================
+   タブ（10分 / 3分 / 10秒）
+============================ */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.tab {
+  padding: 8px 16px;
+  background: #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.tab:hover {
+  background: #d0d0d0;
+}
+
+.tab.active {
+  background: #4a90e2;
+  color: #fff;
 }
