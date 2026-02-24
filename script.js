@@ -1,3 +1,7 @@
+
+const failedVtubers = [];
+
+
 // ===============================
 //  YouTube APIキーを入れる
 // ===============================
@@ -38,13 +42,12 @@ async function loadCSV() {
 // ===============================
 //  ハンドル → チャンネルID 変換
 // ===============================
-async function handleToChannelId(handle) {
-  // 先頭に @ がなければ付ける
+async function handleToChannelId(handle, originalName) {
   if (!handle.startsWith("@")) {
     handle = "@" + handle;
   }
 
-  // ① まず forHandle で高速取得（通常はこれでOK）
+  // ① forHandle で試す
   {
     const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${handle}&key=${API_KEY}`;
     const res = await fetch(url);
@@ -55,9 +58,7 @@ async function handleToChannelId(handle) {
     }
   }
 
-  console.warn("forHandle で取得できず fallback:", handle);
-
-  // ② fallback：検索 API を使う（特殊ケース対応）
+  // ② fallback：検索 API
   {
     const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${handle}&key=${API_KEY}`;
     const res = await fetch(url);
@@ -68,9 +69,16 @@ async function handleToChannelId(handle) {
     }
   }
 
-  console.warn("チャンネルが見つかりません:", handle);
+  // ③ どちらも失敗 → 記録
+  failedVtubers.push({
+    name: originalName,
+    handle: handle
+  });
+
+  console.warn("チャンネル取得失敗:", originalName, handle);
   return null;
 }
+
 
 
 // ===============================
@@ -267,3 +275,17 @@ function exportCSV(data, filename) {
 }
 
 
+function showFailedVtubers() {
+  if (failedVtubers.length === 0) {
+    console.log("すべて取得成功！");
+    return;
+  }
+
+  console.log("取得に失敗したVtuber一覧:");
+  failedVtubers.forEach(v => {
+    console.log(`名前: ${v.name}, ハンドル: ${v.handle}`);
+  });
+}
+
+
+showFailedVtubers();
