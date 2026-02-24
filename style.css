@@ -122,24 +122,36 @@ h1 {
 /* ============================
    タブ（10分 / 3分 / 10秒）
 ============================ */
+/* タブ全体のコンテナ */
+.tabs {
+  display: flex;
+  justify-content: center;   /* ← 横中央揃え */
+  align-items: center;
+  gap: 12px;                 /* ← タブ同士の間隔 */
+  margin: 20px 0 25px;
+}
+
+/* タブボタン */
 .tab {
-  padding: 10px 20px;
+  padding: 10px 22px;
   background: #f0f0f0;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
   transition: 0.2s;
   border: 1px solid #ddd;
+  font-size: 15px;
 }
 
+/* ホバー時 */
 .tab:hover {
   background: #e8e8e8;
 }
 
+/* アクティブタブ */
 .tab.active {
   background: #4a90e2;
   color: #fff;
   border-color: #4a90e2;
   box-shadow: 0 3px 8px rgba(0,0,0,0.2);
 }
-
