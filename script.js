@@ -223,11 +223,17 @@ function exportCSV(data, filename) {
     return;
   }
 
-  const header = Object.keys(data[0]).join(",");
-  const rows = data.map(obj => Object.values(obj).join(","));
-  const csv = [header, ...rows].join("\n");
+  // 値をダブルクォートで囲む（Excel 安定化）
+  const escape = (value) => `"${String(value).replace(/"/g, '""')}"`;
 
-  const blob = new Blob([csv], { type: "text/csv" });
+  const header = Object.keys(data[0]).map(escape).join(",");
+  const rows = data.map(obj => Object.values(obj).map(escape).join(","));
+  const csv = [header, ...rows].join("\r\n");  // ← CRLF（重要）
+
+  // UTF-8 BOM
+  const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+
+  const blob = new Blob([bom, csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
 
   const a = document.createElement("a");
@@ -237,3 +243,5 @@ function exportCSV(data, filename) {
 
   URL.revokeObjectURL(url);
 }
+
+
