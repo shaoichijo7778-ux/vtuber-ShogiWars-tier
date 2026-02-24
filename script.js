@@ -144,7 +144,7 @@ function placeIcon(info, rankCode, mode) {
 }
 
 // ===============================
-//  メイン処理：CSV → アイコン配置（元の安定版）
+//  メイン処理：CSV → アイコン配置（差分更新版）
 // ===============================
 async function main() {
   const vtubers = await loadCSV();
@@ -155,34 +155,44 @@ async function main() {
 
     let channelId = vt.channelId;
 
-    // ① channelId が空なら API で取得
-    if (!channelId) {
-      channelId = await handleToChannelId(vt.handle);
+    // ① すでに channelId がある → API を呼ばない
+    if (channelId) {
+      // アイコン取得
+      const info = await fetchYouTubeIcon(channelId);
+      if (info) {
+        placeIcon(info, vt.wars10m, "10m");
+        placeIcon(info, vt.wars3m, "3m");
+        placeIcon(info, vt.wars10s, "10s");
+      }
+
+      updatedCSV.push(vt); // そのまま保存
+      continue;
     }
 
-    // 取得できなかったらスキップ
+    // ② 空欄 → API で取得
+    channelId = await handleToChannelId(vt.handle);
     if (!channelId) {
       updatedCSV.push({ ...vt, channelId: "" });
       continue;
     }
 
-    // ② アイコン取得（channelId があれば API 1回だけ）
+    // ③ アイコン取得
     const info = await fetchYouTubeIcon(channelId);
     if (!info) {
       updatedCSV.push({ ...vt, channelId: "" });
       continue;
     }
 
-    // ③ 表に配置
+    // ④ 表に配置
     placeIcon(info, vt.wars10m, "10m");
     placeIcon(info, vt.wars3m, "3m");
     placeIcon(info, vt.wars10s, "10s");
 
-    // ④ 成功した channelId を保存
+    // ⑤ 成功した channelId を保存（差分更新）
     updatedCSV.push({ ...vt, channelId });
   }
 
-  // ⑤ 更新後CSVをダウンロード
+  // ⑥ 更新後CSVをダウンロード
   downloadUpdatedCSV(updatedCSV);
 }
 
