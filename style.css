@@ -30,14 +30,45 @@ h1 {
 }
 
 .tier-row {
-  display: grid;
-  grid-template-columns: 80px 1fr;
+  display: flex;
   align-items: center;
   padding: 6px 10px;
-  margin-bottom: 4px;
-  background: #fff;
+  margin: 4px 0;
   border-radius: 6px;
 }
+
+.tier-row .label {
+  width: 80px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.tier-row .icons img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+/* 段級位ごとの色帯 */
+.rank-7d { background: #ff4d4d; }
+.rank-6d { background: #ff6a3d; }
+.rank-5d { background: #ff8c3d; }
+.rank-4d { background: #ffb84d; }
+.rank-3d { background: #ffe066; }
+.rank-2d { background: #a8e063; }
+.rank-1d { background: #c2f970; }
+
+.rank-1k { background: #b2f7ef; }
+.rank-2k { background: #7ed6df; }
+.rank-3k { background: #74b9ff; }
+.rank-4k { background: #81ecec; }
+.rank-5k { background: #fab1a0; }
+.rank-6k { background: #ffcccc; }
+.rank-7k { background: #dcd6f7; }
+.rank-8k { background: #a29bfe; }
+.rank-9k { background: #6c5ce7; }
+
 
 .tier-row span {
   font-weight: bold;
