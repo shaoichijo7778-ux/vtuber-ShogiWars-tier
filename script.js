@@ -95,26 +95,28 @@ function placeIcon(info, rankCode, mode) {
   const exists = row.querySelector(`img[data-channel-id="${info.channelId}"]`);
   if (exists) return;
 
-  const a = document.createElement("a");
-  a.href = info.url;
-  a.target = "_blank";
+const a = document.createElement("a");
+a.href = info.url;
+a.target = "_blank";
 
-  // ▼ ツールチップは a に付ける（これが重要）
-  a.dataset.tooltip = JSON.stringify({
+// ▼ ツールチップ表示用（名前だけ）
+a.dataset.tooltip = info.title;
+
+// ▼ CSV 出力用（JSON）
+a.dataset.json = JSON.stringify({
   name: info.title,
   rank: rankCode,
-  icon: info.icon,
   url: info.url
 });
 
+const img = document.createElement("img");
+img.src = info.icon;
+img.alt = info.title;
+img.dataset.channelId = info.channelId;
 
-  const img = document.createElement("img");
-  img.src = info.icon;
-  img.alt = info.title;
-  img.dataset.channelId = info.channelId;
+a.appendChild(img);
+row.appendChild(a);
 
-  a.appendChild(img);
-  row.appendChild(a);
 }
 
 
@@ -179,7 +181,7 @@ document.getElementById("export-all").addEventListener("click", () => {
     const icons = row.querySelectorAll("a");
 
     icons.forEach(a => {
-      const info = JSON.parse(a.dataset.tooltip); // placeIcon で入れた JSON
+      const info = JSON.parse(a.dataset.json);// placeIcon で入れた JSON
       data.push({
         name: info.name,
         rank: info.rank,
@@ -202,7 +204,7 @@ document.querySelectorAll(".export-row").forEach(btn => {
     const data = [];
 
     icons.forEach(a => {
-      const info = JSON.parse(a.dataset.tooltip);
+      const info = JSON.parse(a.dataset.json);
       data.push({
         name: info.name,
         rank: info.rank,
