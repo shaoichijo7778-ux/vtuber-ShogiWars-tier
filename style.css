@@ -2,8 +2,13 @@
    全体レイアウト
 ============================ */
 .tier-table {
-  margin-top: 20px;
+  display: none;
 }
+
+.tier-table[data-mode="10m"] {
+  display: block;
+}
+
 
 /* 1段ごとの行 */
 .tier-row {
