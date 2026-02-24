@@ -1,7 +1,3 @@
-
-const failedVtubers = [];
-
-
 // ===============================
 //  YouTube APIキーを入れる
 // ===============================
@@ -19,11 +15,10 @@ async function loadCSV() {
 
   const lines = text.trim().split("\n");
   const headers = lines[0]
-  .replace(/\uFEFF/g, "")
-  .replace(/[\r\n\t]/g, "")
-  .split(",")
-  .map(h => h.trim());
-
+    .replace(/\uFEFF/g, "")
+    .replace(/[\r\n\t]/g, "")
+    .split(",")
+    .map(h => h.trim());
 
   return lines.slice(1).map(line => {
     const cols = line.split(",");
@@ -33,53 +28,23 @@ async function loadCSV() {
     });
     return obj;
   });
-  
-  console.log("cols:", cols);
-
 }
 
-
 // ===============================
-//  ハンドル → チャンネルID 変換
+//  ハンドル → チャンネルID 変換（元の安定版）
 // ===============================
-async function handleToChannelId(handle, originalName) {
-  if (!handle.startsWith("@")) {
-    handle = "@" + handle;
+async function handleToChannelId(handle) {
+  const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${handle}&key=${API_KEY}`;
+  const res = await fetch(url);
+  const data = await res.json();
+
+  if (!data.items || data.items.length === 0) {
+    console.warn("チャンネルが見つかりません:", handle);
+    return null;
   }
 
-  // ① forHandle で試す
-  {
-    const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${handle}&key=${API_KEY}`;
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (data.items && data.items.length > 0) {
-      return data.items[0].id;
-    }
-  }
-
-  // ② fallback：検索 API
-  {
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${handle}&key=${API_KEY}`;
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (data.items && data.items.length > 0) {
-      return data.items[0].snippet.channelId;
-    }
-  }
-
-  // ③ どちらも失敗 → 記録
-  failedVtubers.push({
-    name: originalName,
-    handle: handle
-  });
-
-  console.warn("チャンネル取得失敗:", originalName, handle);
-  return null;
+  return data.items[0].id;
 }
-
-
 
 // ===============================
 //  チャンネルID → アイコン取得
@@ -97,85 +62,76 @@ async function fetchYouTubeIcon(channelId) {
     title: snippet.title,
     icon: snippet.thumbnails.high.url,
     url: `https://www.youtube.com/channel/${channelId}`,
-    channelId: channelId   // ← ★これが必須！
+    channelId: channelId
   };
 }
-
 
 // ===============================
 //  段級位の行にアイコンを置く
 // ===============================
 function placeIcon(info, rankCode, mode) {
   if (!rankCode) return;
-  
-  rankCode = rankCode
-    .replace(/[\r\n\t]/g, "")  // 改行・タブ除去
-    .replace(/\uFEFF/g, "")    // BOM除去
-    .trim();                   // 前後の空白除去
 
-  // ▼ 正しい表（10m / 3m / 10s）を選ぶ
+  rankCode = rankCode
+    .replace(/[\r\n\t]/g, "")
+    .replace(/\uFEFF/g, "")
+    .trim();
+
   const table = document.querySelector(`.tier-table[data-mode="${mode}"]`);
   if (!table) return;
 
-  // ▼ その表の中から正しい段級位を探す
   const row = table.querySelector(`.tier-row[data-rank="${rankCode}"] .icons`);
   if (!row) return;
 
-  // ▼ 重複防止
   const exists = row.querySelector(`img[data-channel-id="${info.channelId}"]`);
   if (exists) return;
 
-const a = document.createElement("a");
-a.href = info.url;
-a.target = "_blank";
+  const a = document.createElement("a");
+  a.href = info.url;
+  a.target = "_blank";
 
-// ▼ ツールチップ表示用（名前だけ）
-a.dataset.tooltip = info.title;
+  // ▼ ツールチップ表示用（名前だけ）
+  a.dataset.tooltip = info.title;
 
-// ▼ CSV 出力用（JSON）
-a.dataset.json = JSON.stringify({
-  name: info.title,
-  rank: rankCode,
-  url: info.url
-});
+  // ▼ CSV 出力用（JSON）
+  a.dataset.json = JSON.stringify({
+    name: info.title,
+    rank: rankCode,
+    url: info.url
+  });
 
-const img = document.createElement("img");
-img.src = info.icon;
-img.alt = info.title;
-img.dataset.channelId = info.channelId;
+  const img = document.createElement("img");
+  img.src = info.icon;
+  img.alt = info.title;
+  img.dataset.channelId = info.channelId;
 
-a.appendChild(img);
-row.appendChild(a);
-
+  a.appendChild(img);
+  row.appendChild(a);
 }
 
-
-
 // ===============================
-//  メイン処理：CSV → アイコン配置
+//  メイン処理：CSV → アイコン配置（元の安定版）
 // ===============================
 async function main() {
   const vtubers = await loadCSV();
 
-	for (const vt of vtubers) {
-	  console.log("vt:", vt);
+  for (const vt of vtubers) {
+    console.log("vt:", vt);
 
-	  // ① ハンドル → チャンネルID
-	  const channelId = await handleToChannelId(vt.handle, vt.name);
-	  if (!channelId) continue;
+    // ① ハンドル → チャンネルID
+    const channelId = await handleToChannelId(vt.handle);
+    if (!channelId) continue;
 
-	  // ② アイコン取得
-	  const info = await fetchYouTubeIcon(channelId);
-	  if (!info) continue;
+    // ② アイコン取得
+    const info = await fetchYouTubeIcon(channelId);
+    if (!info) continue;
 
-	  // ③ 段級位ごとに配置
-	  placeIcon(info, vt.wars10m, "10m");
-	  placeIcon(info, vt.wars3m, "3m");
-	  placeIcon(info, vt.wars10s, "10s");
-	}
-
-
+    // ③ 段級位ごとに配置
+    placeIcon(info, vt.wars10m, "10m");
+    placeIcon(info, vt.wars3m, "3m");
+    placeIcon(info, vt.wars10s, "10s");
   }
+}
 
 main();
 
@@ -184,38 +140,35 @@ main();
 // ===============================
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
-    const mode = tab.dataset.mode; // "10m" / "3m" / "10s"
+    const mode = tab.dataset.mode;
 
-    // タブの見た目を更新
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
     tab.classList.add("active");
 
-    // 表示切り替え
     document.querySelectorAll(".tier-table").forEach(table => {
       table.style.display = (table.dataset.mode === mode) ? "block" : "none";
     });
   });
 });
 
-
+// ===============================
+// CSV 出力
+// ===============================
 document.getElementById("export-all").addEventListener("click", () => {
   const activeMode = document.querySelector(".tab.active").dataset.mode;
   const table = document.querySelector(`.tier-table[data-mode="${activeMode}"]`);
 
   const rows = table.querySelectorAll(".tier-row");
-
   const data = [];
 
   rows.forEach(row => {
-    const rank = row.dataset.rank;
     const icons = row.querySelectorAll("a");
 
     icons.forEach(a => {
-      const info = JSON.parse(a.dataset.json);// placeIcon で入れた JSON
+      const info = JSON.parse(a.dataset.json);
       data.push({
         name: info.name,
         rank: info.rank,
-        //icon: info.icon,
         url: a.href
       });
     });
@@ -226,7 +179,7 @@ document.getElementById("export-all").addEventListener("click", () => {
 
 document.querySelectorAll(".export-row").forEach(btn => {
   btn.addEventListener("click", () => {
-  	const activeMode = document.querySelector(".tab.active").dataset.mode;
+    const activeMode = document.querySelector(".tab.active").dataset.mode;
     const row = btn.closest(".tier-row");
     const rank = row.dataset.rank;
     const icons = row.querySelectorAll("a");
@@ -238,7 +191,6 @@ document.querySelectorAll(".export-row").forEach(btn => {
       data.push({
         name: info.name,
         rank: info.rank,
-        //icon: info.icon,
         url: a.href
       });
     });
@@ -247,20 +199,21 @@ document.querySelectorAll(".export-row").forEach(btn => {
   });
 });
 
+// ===============================
+// CSV 出力関数（BOM + CRLF）
+// ===============================
 function exportCSV(data, filename) {
   if (data.length === 0) {
     alert("データがありません");
     return;
   }
 
-  // 値をダブルクォートで囲む（Excel 安定化）
   const escape = (value) => `"${String(value).replace(/"/g, '""')}"`;
 
   const header = Object.keys(data[0]).map(escape).join(",");
   const rows = data.map(obj => Object.values(obj).map(escape).join(","));
-  const csv = [header, ...rows].join("\r\n");  // ← CRLF（重要）
+  const csv = [header, ...rows].join("\r\n");
 
-  // UTF-8 BOM
   const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
 
   const blob = new Blob([bom, csv], { type: "text/csv" });
@@ -273,19 +226,3 @@ function exportCSV(data, filename) {
 
   URL.revokeObjectURL(url);
 }
-
-
-function showFailedVtubers() {
-  if (failedVtubers.length === 0) {
-    console.log("すべて取得成功！");
-    return;
-  }
-
-  console.log("取得に失敗したVtuber一覧:");
-  failedVtubers.forEach(v => {
-    console.log(`名前: ${v.name}, ハンドル: ${v.handle}`);
-  });
-}
-
-
-showFailedVtubers();
