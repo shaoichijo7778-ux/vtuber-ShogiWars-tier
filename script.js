@@ -34,17 +34,42 @@ async function loadCSV() {
 //  ハンドル → チャンネルID 変換（元の安定版）
 // ===============================
 async function handleToChannelId(handle) {
-  const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${handle}&key=${API_KEY}`;
-  const res = await fetch(url);
-  const data = await res.json();
+  if (!handle.startsWith("@")) {
+    handle = "@" + handle;
+  }
 
-  if (!data.items || data.items.length === 0) {
-    console.warn("チャンネルが見つかりません:", handle);
+  // ① forHandle（軽量）
+  {
+    const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${handle}&key=${API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.items && data.items.length > 0) {
+      return data.items[0].id;
+    }
+  }
+
+  // ② fallback 条件：ハンドルにハイフンが含まれる場合のみ
+  if (!handle.includes("-")) {
+    console.warn("forHandle 失敗（fallback しない）:", handle);
     return null;
   }
 
-  return data.items[0].id;
+  // ③ fallback：search API（重いので必要なときだけ）
+  {
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${handle}&key=${API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.items && data.items.length > 0) {
+      return data.items[0].snippet.channelId;
+    }
+  }
+
+  console.warn("チャンネル取得失敗:", handle);
+  return null;
 }
+
 
 // ===============================
 //  チャンネルID → アイコン取得
@@ -114,24 +139,44 @@ function placeIcon(info, rankCode, mode) {
 // ===============================
 async function main() {
   const vtubers = await loadCSV();
+  const updatedCSV = []; // ← 保存用
 
   for (const vt of vtubers) {
     console.log("vt:", vt);
 
-    // ① ハンドル → チャンネルID
-    const channelId = await handleToChannelId(vt.handle);
-    if (!channelId) continue;
+    let channelId = vt.channelId;
 
-    // ② アイコン取得
+    // ① channelId が空なら API で取得
+    if (!channelId) {
+      channelId = await handleToChannelId(vt.handle);
+    }
+
+    // 取得できなかったらスキップ
+    if (!channelId) {
+      updatedCSV.push({ ...vt, channelId: "" });
+      continue;
+    }
+
+    // ② アイコン取得（channelId があれば API 1回だけ）
     const info = await fetchYouTubeIcon(channelId);
-    if (!info) continue;
+    if (!info) {
+      updatedCSV.push({ ...vt, channelId: "" });
+      continue;
+    }
 
-    // ③ 段級位ごとに配置
+    // ③ 表に配置
     placeIcon(info, vt.wars10m, "10m");
     placeIcon(info, vt.wars3m, "3m");
     placeIcon(info, vt.wars10s, "10s");
+
+    // ④ 成功した channelId を保存
+    updatedCSV.push({ ...vt, channelId });
   }
+
+  // ⑤ 更新後CSVをダウンロード
+  downloadUpdatedCSV(updatedCSV);
 }
+
 
 main();
 
@@ -222,6 +267,26 @@ function exportCSV(data, filename) {
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+
+function downloadUpdatedCSV(data) {
+  const escape = (v) => `"${String(v).replace(/"/g, '""')}"`;
+
+  const header = Object.keys(data[0]).map(escape).join(",");
+  const rows = data.map(obj => Object.values(obj).map(escape).join(","));
+  const csv = [header, ...rows].join("\r\n");
+
+  const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+  const blob = new Blob([bom, csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "vtubers_updated.csv";
   a.click();
 
   URL.revokeObjectURL(url);
