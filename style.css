@@ -16,7 +16,7 @@
   align-items: center;
   margin: 6px 0;
   border-radius: 6px;
-  overflow: hidden;
+  /* overflow: hidden; ← 削除（ツールチップが消える原因） */
 }
 
 /* 左端の段級位ラベル（ここだけ色を付ける） */
@@ -72,11 +72,15 @@
 /* ============================
    ツールチップ（アイコンに名前表示）
 ============================ */
-.icons img {
+
+/* img ではなく a に position を付ける */
+.icons a {
   position: relative;
+  display: inline-block;
 }
 
-.icons img:hover::after {
+/* ツールチップ本体 */
+.icons a:hover::after {
   content: attr(data-tooltip);
   position: absolute;
   top: -32px;
@@ -90,10 +94,11 @@
   font-size: 13px;
   pointer-events: none;
   opacity: 1;
-  z-index: 10;
+  z-index: 9999;
 }
 
-.icons img::after {
+/* 初期状態（非表示） */
+.icons a::after {
   opacity: 0;
   transition: opacity 0.15s ease-out;
 }
