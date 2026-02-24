@@ -79,10 +79,9 @@ function placeIcon(info, rankCode, mode) {
   if (!rankCode) return;
   
   rankCode = rankCode
-  .replace(/[\r\n\t]/g, "")  // 改行・タブ除去
-  .replace(/\uFEFF/g, "")    // BOM除去
-  .trim();                   // 前後の空白除去
-
+    .replace(/[\r\n\t]/g, "")  // 改行・タブ除去
+    .replace(/\uFEFF/g, "")    // BOM除去
+    .trim();                   // 前後の空白除去
 
   // ▼ 正しい表（10m / 3m / 10s）を選ぶ
   const table = document.querySelector(`.tier-table[data-mode="${mode}"]`);
@@ -100,6 +99,9 @@ function placeIcon(info, rankCode, mode) {
   a.href = info.url;
   a.target = "_blank";
 
+  // ▼ ツールチップは a に付ける（これが重要）
+  a.dataset.tooltip = info.title;
+
   const img = document.createElement("img");
   img.src = info.icon;
   img.alt = info.title;
@@ -108,6 +110,7 @@ function placeIcon(info, rankCode, mode) {
   a.appendChild(img);
   row.appendChild(a);
 }
+
 
 
 // ===============================
